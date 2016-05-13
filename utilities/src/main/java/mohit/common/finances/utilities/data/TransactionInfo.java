@@ -17,18 +17,12 @@ public class TransactionInfo implements Serializable {
 	private String amountDebited;
 	private String amountCredited;
 
-	public TransactionInfo(String name, String commaSeparatedString) {
+	public TransactionInfo() {
 		super();
+	}
+		public TransactionInfo(String name, String commaSeparatedString) {
+			super();
 		this.bankOrCardName = name;
-
-		// this.txnStage = txnStage;
-		// this.txnDate = txnDate;
-		// this.postDate = postDate;
-		// this.accountEndingIn = accountEndingIn;
-		// this.description = description;
-		// this.category = category;
-		// this.amountDebited = amountDebited;
-		// this.amountCredited = amountCredited;
 	}
 
 	public String getName() {
@@ -102,5 +96,15 @@ public class TransactionInfo implements Serializable {
 	public void setAmountCredited(String amountCredited) {
 		this.amountCredited = amountCredited;
 	}
+	@Override
+	public String toString() {
+		return "TransactionInfo [bankOrCardName=" + bankOrCardName + ", txnStage=" + txnStage + ", txnDate=" + txnDate
+				+ ", postDate=" + postDate + ", accountEndingIn=" + accountEndingIn + ", description=" + description
+				+ ", category=" + category + ", amountDebited=" + amountDebited + ", amountCredited=" + amountCredited
+				+ "]";
+	}
+
+
 
 }
+
