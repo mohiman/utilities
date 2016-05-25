@@ -1,6 +1,9 @@
 package mohit.common.finances.utilities.data;
 
 import java.io.Serializable;
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
 
 public class TransactionInfo implements Serializable {
 
@@ -9,14 +12,15 @@ public class TransactionInfo implements Serializable {
 
 	private String bankOrCardName;
 	private String txnStage;
-	private String txnDate;
-	private String postDate;
+	private Date txnDate;
+	private Date postDate;
 	private String accountEndingIn;
 	private String description;
 	private String category;
-	private String amountDebited;
-	private String amountCredited;
+	private Float amountDebited;
+	private Float amountCredited;
 
+	
 	public TransactionInfo() {
 		super();
 	}
@@ -41,19 +45,19 @@ public class TransactionInfo implements Serializable {
 		this.txnStage = txnStage;
 	}
 
-	public String getTxnDate() {
+	public Date getTxnDate() {
 		return txnDate;
 	}
 
-	public void setTxnDate(String txnDate) {
+	public void setTxnDate(Date txnDate) {
 		this.txnDate = txnDate;
 	}
 
-	public String getPostDate() {
+	public Date getPostDate() {
 		return postDate;
 	}
 
-	public void setPostDate(String postDate) {
+	public void setPostDate(Date postDate) {
 		this.postDate = postDate;
 	}
 
@@ -65,10 +69,17 @@ public class TransactionInfo implements Serializable {
 		this.accountEndingIn = accountEndingIn;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getDescription() 
+	{
+		return description != null && description.length()>15 ? description.substring(0,14) : description;
 	}
-
+	public String getShortDescription()
+	{
+		
+		return description   ;
+		
+		
+	}
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -81,19 +92,19 @@ public class TransactionInfo implements Serializable {
 		this.category = category;
 	}
 
-	public String getAmountDebited() {
+	public Float getAmountDebited() {
 		return amountDebited;
 	}
 
-	public void setAmountDebited(String amountDebited) {
+	public void setAmountDebited(Float amountDebited) {
 		this.amountDebited = amountDebited;
 	}
 
-	public String getAmountCredited() {
+	public Float getAmountCredited() {
 		return amountCredited;
 	}
 
-	public void setAmountCredited(String amountCredited) {
+	public void setAmountCredited(Float amountCredited) {
 		this.amountCredited = amountCredited;
 	}
 	@Override

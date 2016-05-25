@@ -34,23 +34,22 @@ public class CSVFileReader
 		{
 			String currentLine = iterator.next();
 			List<String> splitLine = Arrays.asList(currentLine.split("\\s*,\\s*"));
+//			System.out.println("splitLine = " + splitLine );
 			parsedListedData.add(splitLine);
 		}
 		//here I need to put the logic to read different formats of the csv files.... for now I only have one format, eventually the format needs to be outside in a config
-		getTransactionInfoObjectFromStringList(institutionName, parsedListedData);
-		
-		return null;
+		return getTransactionInfoObjectFromStringList(institutionName, parsedListedData, true);
 	}
 	
     private static List<String> readFile(String fileName) throws IOException
     {
-    	 File file = new File("datafile/Transactions-Download-05-11-2016.csv");
+    	 File file = new File(fileName);
     	 List<String> lines = FileUtils.readLines(file, "UTF-8");
     	 
     	 return lines;
     }
     
-    private static List<TransactionInfo> getTransactionInfoObjectFromStringList(String name, List<List> parsedListedData) throws Exception
+    private static List<TransactionInfo> getTransactionInfoObjectFromStringList(String name, List<List> parsedListedData, boolean ignoreFirstRow) throws Exception
     {
     
     	/**
@@ -61,26 +60,36 @@ public class CSVFileReader
     	 */
     	List <TransactionInfo> txnInfos = new ArrayList<TransactionInfo>();
 		Iterator<List> iterator = parsedListedData.iterator();
+		if (ignoreFirstRow)
+		{
+			System.out.println("IgnoringXXXXX: " +  iterator.next());
+			
+		}
+		
+		
 		while(iterator.hasNext())
 		{
 			List<String> currentRow = iterator.next();
 	    	TransactionInfo transactionInfo = new TransactionInfo();
+//			System.out.println("Parsing this Row: " +  currentRow.toString());
+	    	
 	    	if (currentRow!= null && currentRow.size() >= 7)
 	    	{
 		    	transactionInfo.setName(name);
 		    	transactionInfo.setTxnStage(currentRow.get(0));
-		    	transactionInfo.setTxnDate(currentRow.get(1));
-		    	transactionInfo.setPostDate(currentRow.get(2));
+		    	transactionInfo.setTxnDate(MyUtils.getDateFromString(currentRow.get(1)));
+		    	transactionInfo.setPostDate(MyUtils.getDateFromString(currentRow.get(2)));
 		    	transactionInfo.setAccountEndingIn(currentRow.get(3));
 		    	transactionInfo.setDescription(currentRow.get(4));
 		    	transactionInfo.setCategory(currentRow.get(5));
-		    	transactionInfo.setAmountDebited(currentRow.get(6));
+//		    	System.out.println("Passing in this number for conversion:: " + currentRow.get(6) );
+		    	transactionInfo.setAmountDebited(MyUtils.getNumberFromString(currentRow.get(6)));
 		    	
 		    	//there is a debit transaction
 		    	if (currentRow.size() > 7)
-		    		transactionInfo.setAmountCredited(currentRow.get(7));
+		    		transactionInfo.setAmountCredited(MyUtils.getNumberFromString(currentRow.get(7)));
 		    	
-		    	System.out.println(transactionInfo.toString());
+//		    	System.out.println(transactionInfo.toString());
 		    	txnInfos.add(transactionInfo);
 	    	}
 	    	else
