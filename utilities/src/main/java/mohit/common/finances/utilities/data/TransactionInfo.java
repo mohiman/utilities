@@ -19,12 +19,24 @@ public class TransactionInfo implements Serializable {
 	private String category;
 	private Float amountDebited;
 	private Float amountCredited;
-
+	private String merchantDisplayName;
 	
+	public String getBankOrCardName() {
+		return bankOrCardName;
+	}
+	public void setBankOrCardName(String bankOrCardName) {
+		this.bankOrCardName = bankOrCardName;
+	}
+	public String getMerchantDisplayName() {
+		return merchantDisplayName;
+	}
+	public void setMerchantDisplayName(String merchantDisplayName) {
+		this.merchantDisplayName = merchantDisplayName;
+	}
 	public TransactionInfo() {
 		super();
 	}
-		public TransactionInfo(String name, String commaSeparatedString) {
+		public TransactionInfo(String name) {
 			super();
 		this.bankOrCardName = name;
 	}
@@ -71,8 +83,9 @@ public class TransactionInfo implements Serializable {
 
 	public String getDescription() 
 	{
-		return description != null && description.length()>15 ? description.substring(0,14) : description;
+		return description ;//!= null && description.length()>15 ? description.substring(0,14) : description;
 	}
+	
 	public String getShortDescription()
 	{
 		
@@ -112,7 +125,7 @@ public class TransactionInfo implements Serializable {
 		return "TransactionInfo [bankOrCardName=" + bankOrCardName + ", txnStage=" + txnStage + ", txnDate=" + txnDate
 				+ ", postDate=" + postDate + ", accountEndingIn=" + accountEndingIn + ", description=" + description
 				+ ", category=" + category + ", amountDebited=" + amountDebited + ", amountCredited=" + amountCredited
-				+ "]";
+				+ ", merchantDisplayName=" + merchantDisplayName + "]";
 	}
 
 

@@ -4,33 +4,21 @@ public class AccountInfo
 {
 
 	private String accountName;
-	private String accountEmailSubLine;
-	private String accountEmailParseStartText;
-	private String accountEmailParsEendText;
 	private String accountEmailFrom;
+	
+	
+	//---Regular Expressions
+	
+	private String dateRegex;
+	private String amtRegex;
+	private String mrchntRegxStart;
+	private String mrchntRegxEnd;
+	private String mrchntRegx;
 	public String getAccountName() {
 		return accountName;
 	}
 	public void setAccountName(String accountName) {
 		this.accountName = accountName;
-	}
-	public String getAccountEmailSubLine() {
-		return accountEmailSubLine;
-	}
-	public void setAccountEmailSubLine(String accountEmailSubLine) {
-		this.accountEmailSubLine = accountEmailSubLine;
-	}
-	public String getAccountEmailParseStartText() {
-		return accountEmailParseStartText;
-	}
-	public void setAccountEmailParseStartText(String accountEmailParseStartText) {
-		this.accountEmailParseStartText = accountEmailParseStartText;
-	}
-	public String getAccountEmailParsEendText() {
-		return accountEmailParsEendText;
-	}
-	public void setAccountEmailParsEendText(String accountEmailParsEendText) {
-		this.accountEmailParsEendText = accountEmailParsEendText;
 	}
 	public String getAccountEmailFrom() {
 		return accountEmailFrom;
@@ -38,11 +26,43 @@ public class AccountInfo
 	public void setAccountEmailFrom(String accountEmailFrom) {
 		this.accountEmailFrom = accountEmailFrom;
 	}
+	public String getDateRegex() {
+		return dateRegex;
+	}
+	public void setDateRegex(String dateRegex) {
+		this.dateRegex = dateRegex;
+	}
+	public String getAmtRegex() {
+		return amtRegex;
+	}
+	public void setAmtRegex(String amtRegex) {
+		this.amtRegex = amtRegex;
+	}
+	public String getMrchntRegxStart() {
+		return mrchntRegxStart;
+	}
+	public void setMrchntRegxStart(String mrchntRegxStart) {
+		this.mrchntRegxStart = mrchntRegxStart;
+	}
+	public String getMrchntRegxEnd() {
+		return mrchntRegxEnd;
+	}
+	public void setMrchntRegxEnd(String mrchntRegxEnd) {
+		this.mrchntRegxEnd = mrchntRegxEnd;
+	}
+	public String getMrchntRegx() {
+		return mrchntRegx;
+	}
+	public void setMrchntRegx(String mrchntRegx) {
+		this.mrchntRegx = mrchntRegx;
+	}
 	@Override
 	public String toString() {
-		return "AccountInfo [accountName=" + accountName + ", accountEmailSubLine=" + accountEmailSubLine
-				+ ", accountEmailParseStartText=" + accountEmailParseStartText + ", accountEmailParsEendText="
-				+ accountEmailParsEendText + ", accountEmailFrom=" + accountEmailFrom + "]";
+		return "AccountInfo [accountName=" + accountName + ", accountEmailFrom=" + accountEmailFrom + ", dateRegex="
+				+ dateRegex + ", amtRegex=" + amtRegex + ", mrchntRegxStart=" + mrchntRegxStart + ", mrchntRegxEnd="
+				+ mrchntRegxEnd + ", mrchntRegx=" + mrchntRegx + "]";
 	}
-
+	
+		
+	
 }

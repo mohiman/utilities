@@ -26,6 +26,14 @@ public class MyUtils {
 
 	private static final String[] DATE_FORMATS = { "MM/dd/yyyy", "MMM dd, yyyy" };
 	private static Logger logger = Logger.getLogger(MyUtils.class);
+	private static NumberFormat FORMAT= NumberFormat.getNumberInstance();
+	static
+	{
+		FORMAT.setMinimumFractionDigits(2);
+	}
+	
+
+	
 	public static Date getDateFromString(String passedInString) {
 		Date dt = new Date();
 
@@ -43,7 +51,18 @@ public class MyUtils {
 
 	public static Float getNumberFromString(String passedInString) {
 		try {
-			if (StringUtils.isNotBlank(passedInString)) {
+			if (StringUtils.isNotBlank(passedInString)) 
+			{
+				
+				if (passedInString.startsWith("$")) 
+				{
+					return NumberUtils.createFloat(passedInString.substring(1,passedInString.length() ));
+				}
+				else if (passedInString.startsWith("-$"))
+				{
+					return NumberUtils.createFloat(passedInString.substring(2,passedInString.length() ));
+				}
+						
 				return NumberUtils.createFloat(passedInString);
 			}
 		} catch (Exception e) {
@@ -54,7 +73,6 @@ public class MyUtils {
 
 	public static TransactionInfo parseEmailContent(Multipart content, AccountInfo accountInfo) 
 	{
-		TransactionInfo info = new TransactionInfo();
 
 		try {
 			int multiPartCount = content.getCount();
@@ -65,48 +83,7 @@ public class MyUtils {
 				if (obj instanceof String) 
 				{
 					String data = ((String)obj).toLowerCase();
-
-					int start = (data.indexOf(accountInfo.getAccountEmailParseStartText()));
-					int end = (data.indexOf(accountInfo.getAccountEmailParsEendText()));
-					
-					if (start >= 0 && end >= 0)
-					{
-						String datePattern = "(.*)(\\w\\w\\w\\s\\d\\d,\\s\\d\\d\\d\\d)(.*)";
-						Pattern pattern = Pattern.compile(datePattern);
-
-						String someOtherStr = "\\s\\d\\d\\d\\d\\s\\w\\w\\s";
-						Pattern somePattern = Pattern.compile(someOtherStr);
-
-						String merchantEndString = "a pending";
-						if (data != null) {
-							info.setName(accountInfo.getAccountName());
-							// System.out.println("\n"+data[i]);
-							// Get the date
-							Matcher m = pattern.matcher(data);
-							String dateOfTxn = "";
-							if (m.find()) {
-
-								dateOfTxn = m.group(m.groupCount() - 1).toString();
-								info.setTxnDate(MyUtils.getDateFromString(dateOfTxn));
-							}
-							// System.out.print("\n"+ dateOfTxn +"\t");
-
-							// Currency
-							int startCurrency = data.indexOf("$");
-							int endCurrency = data.indexOf(" ", startCurrency);
-							// System.out.print(data.substring(startCurrency+1, endCurrency) );
-							info.setAmountDebited(MyUtils.getNumberFromString(data.substring(startCurrency + 1, endCurrency)));
-
-							// Merchant
-							m = somePattern.matcher(data);
-							int merchantEndIdx = data.indexOf(merchantEndString);
-							if (m.find() && merchantEndIdx >= m.start()) {
-								// System.out.print("\t" + data.substring(m.start()+9 ,
-								// merchantEndIdx) );
-								info.setDescription(data.substring(m.start() + 9, merchantEndIdx));
-							}
-						}
-					}
+					return parseEmail(data, accountInfo);
 				} 
 				else if (obj instanceof Multipart) 
 				{
@@ -118,58 +95,47 @@ public class MyUtils {
 		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
-		return info;
+		return null;
 	}
 	
-	
-	
-	public static TransactionInfo parseEmailText1(String data, String accountInd) {
-		String datePattern = "(.*)(\\w\\w\\w\\s\\d\\d,\\s\\d\\d\\d\\d)(.*)";
-		Pattern pattern = Pattern.compile(datePattern);
-
-		String someOtherStr = "\\s\\d\\d\\d\\d\\s\\w\\w\\s";
-		Pattern somePattern = Pattern.compile(someOtherStr);
-
-		String merchantEndString = "a pending";
-		TransactionInfo info = new TransactionInfo();
-		if (data != null) {
-			info.setName(ConfigReader.getInstance().getProperty("account.1.name"));
-			// System.out.println("\n"+data[i]);
-			// Get the date
-			Matcher m = pattern.matcher(data);
-			String dateOfTxn = "";
-			if (m.find()) {
-
-				dateOfTxn = m.group(m.groupCount() - 1).toString();
-				info.setTxnDate(MyUtils.getDateFromString(dateOfTxn));
-			}
-			// System.out.print("\n"+ dateOfTxn +"\t");
-
-			// Currency
-			int startCurrency = data.indexOf("$");
-			int endCurrency = data.indexOf(" ", startCurrency);
-			// System.out.print(data.substring(startCurrency+1, endCurrency) );
-			info.setAmountDebited(MyUtils.getNumberFromString(data.substring(startCurrency + 1, endCurrency)));
-
-			// Merchant
-			m = somePattern.matcher(data);
-			int merchantEndIdx = data.indexOf(merchantEndString);
-			if (m.find() && merchantEndIdx >= m.start()) {
-				// System.out.print("\t" + data.substring(m.start()+9 ,
-				// merchantEndIdx) );
-				info.setDescription(data.substring(m.start() + 9, merchantEndIdx));
-			}
-		}
-		return info;
-	}
-
-	
-	private static NumberFormat FORMAT= NumberFormat.getNumberInstance();
-	static
+	public static TransactionInfo parseEmail(String data, AccountInfo accountInfo)
 	{
-		FORMAT.setMinimumFractionDigits(2);
+		TransactionInfo info = new TransactionInfo(accountInfo.getAccountName());
+
+		 data = data.toLowerCase();
+		
+		String date = getMatchedRegEx(accountInfo.getDateRegex(),data);
+		String amount = getMatchedRegEx(accountInfo.getAmtRegex(),data);
+		String merchantName = getMatchedRegEx(accountInfo.getMrchntRegx(),data);
+
+		
+		
+		info.setTxnDate(MyUtils.getDateFromString(date));
+		info.setAmountDebited(MyUtils.getNumberFromString(amount));
+		info.setDescription(merchantName);
+		if (StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) && 
+				StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) )
+		{
+			info.setMerchantDisplayName(merchantName.replaceAll(accountInfo.getMrchntRegxStart(), "").trim().replaceAll(accountInfo.getMrchntRegxEnd(), "").trim() );
+		}		
+		
+		System.out.println(info.toString());
+		
+		return info;
 	}
 	
+	
+	private static String getMatchedRegEx(String regEx, String data) 
+	{
+		Pattern p = Pattern.compile(regEx.toLowerCase());
+		Matcher m1 = p.matcher(data.toLowerCase()) ;
+	    if (m1.find())
+	    {
+	    	return data.substring(m1.start(), m1.end());
+	    }
+	    return "";
+	}
+
 	public static String printTotals(List<TransactionInfo> transactionInfos, String whichField) {
 
 		String whiteSpace = " ";
@@ -182,15 +148,27 @@ public class MyUtils {
 
 			debit += (info.getAmountDebited() == null ? 0f : info.getAmountDebited());
 			
-			builder.append(DateFormatUtils.format( info.getTxnDate(), ConfigReader.getInstance().getProperty("sms.date.format", "MM/dd/yyyy") ) + 
-					whiteSpace + info.getDescription() + whiteSpace + "$" +  info.getAmountDebited() + "\n");
-			
-			System.out.println(info.getName() + whiteSpace + DateFormatUtils.format( info.getTxnDate(), ConfigReader.getInstance().getProperty("sms.date.format", "MM/dd/yyyy") ) + 
-					whiteSpace + info.getDescription() + whiteSpace + "$" +  info.getAmountDebited() + "\n");
+			builder.append(info.getName() );
+			builder.append(whiteSpace);
+			builder.append(DateFormatUtils.format( info.getTxnDate(), ConfigReader.getInstance().getProperty("sms.date.format", "MM/dd/yyyy") ) );
+			builder.append(whiteSpace);
+			if (StringUtils.isNotBlank(info.getMerchantDisplayName()))
+			{
+				builder.append(  info.getMerchantDisplayName()  );
+			}
+			else
+			{
+				builder.append(  info.getDescription()  );
+			}
+			builder.append(whiteSpace);
+			builder.append("$" +  info.getAmountDebited()  );
+			builder.append(whiteSpace);
+
 		}
-		System.out.println("Total for today : " + FORMAT.format(debit) + "\r\n");
 		builder.append("\r\n------------------------------------------");
 		builder.append("\r\nTotal for today : $" + FORMAT.format(debit));
+
+		System.out.println(builder.toString());
 		return builder.toString();
 	}
 

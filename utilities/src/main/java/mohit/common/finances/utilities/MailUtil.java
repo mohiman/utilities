@@ -1,17 +1,15 @@
 package mohit.common.finances.utilities;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import javax.mail.BodyPart;
+import javax.mail.Address;
 import javax.mail.FetchProfile;
 import javax.mail.Folder;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Store;
@@ -62,10 +60,6 @@ public class MailUtil {
         // -- Set the FROM and TO fields --
         msg.setFrom(new InternetAddress( ConfigReader.getInstance().getProperty(ConfigReader.EMAIL_USERNAME)) );
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(ConfigReader.getInstance().getProperty(ConfigReader.EMAIL_SMS_ADDRESS), false));
-
-//        if (ccEmail.length() > 0) {
-//            msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccEmail, false));
-//        }
 
         msg.setSubject("Daily expenses");
         msg.setText(msg1, "utf-8");
@@ -120,10 +114,24 @@ public class MailUtil {
 
 				if (messages[i]!=null && messages[i].getSubject()!= null)
 				{	
-					AccountInfo accountInfo = findAMatch(messages[i].getSubject(), accountInfos);
-					if (accountInfo!=null && messages[i].getContent() instanceof Multipart)
+					
+					AccountInfo accountInfo = findAMatch( messages[i].getFrom(), accountInfos);
+					
+					if (accountInfo!=null )
 					{
-						TransactionInfo transactionInfo = MyUtils.parseEmailContent( (Multipart) messages[i].getContent(),accountInfo);
+						logger.debug(messages[i].getContentType());
+						TransactionInfo transactionInfo = null;
+						if (messages[i].getContentType().contains("TEXT"))
+						{
+//							System.out.println((String) messages[i].getContent());
+							transactionInfo = MyUtils.parseEmail( (String) messages[i].getContent(),accountInfo);
+						}
+						else
+						{
+						
+							transactionInfo = MyUtils.parseEmailContent( (Multipart) messages[i].getContent(),accountInfo);	
+						}
+						
 						if (logger.isDebugEnabled())
 						{
 							logger.debug(transactionInfo.toString());
@@ -154,12 +162,13 @@ public class MailUtil {
 		return transactionInfos;
 	}
 
-	private static AccountInfo findAMatch(String subject, List<AccountInfo> accountInfos) {
-		if (accountInfos!=null && accountInfos.size()>0)
+	private static AccountInfo findAMatch(Address[] from, List<AccountInfo> accountInfos) {
+		if (accountInfos!=null && accountInfos.size()>0 && from!=null && from.length > 0)
 		{
 			for (AccountInfo accountInfo : accountInfos )
 			{
-				if (subject.toLowerCase().contains(accountInfo.getAccountEmailSubLine().toLowerCase()))
+//				if (subject.toLowerCase().contains(accountInfo.getAccountEmailSubLine().toLowerCase()))
+				if (from[0].toString().toLowerCase().contains(accountInfo.getAccountEmailFrom().toLowerCase()))
 				{
 					if(logger.isDebugEnabled())
 					{
