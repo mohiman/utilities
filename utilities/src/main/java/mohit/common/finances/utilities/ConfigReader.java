@@ -15,6 +15,7 @@ public class ConfigReader
 	public static final String EMAIL_USERNAME = "email.user.name";
 	public static final String TOTAL_ACCOUNTS = "total.accounts";
 	public static final String EMAIL_SMS_ADDRESS = "email.sms.address";
+	public static final String NUM_OF_DAYS = "num.of.days.email.check";
 	
 	
 	private static ConfigReader _this= null;
@@ -65,8 +66,8 @@ public class ConfigReader
 
 	private void loadProperties() throws Exception
     {
-//		InputStream inputStream = new FileInputStream("C:\\Users\\mohiman\\Desktop\\Utilities\\config.properties");
-		InputStream inputStream = new FileInputStream("config.properties");
+		InputStream inputStream = new FileInputStream("C:\\Users\\mohiman\\Desktop\\Utilities\\config.properties");
+//		InputStream inputStream = new FileInputStream("config.properties");
 		
 		props.load(inputStream);
 		

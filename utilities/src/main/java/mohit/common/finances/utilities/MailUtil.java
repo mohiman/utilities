@@ -16,6 +16,7 @@ import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.sun.mail.smtp.SMTPTransport;
@@ -77,8 +78,21 @@ public class MailUtil {
 
 	if (logger.isDebugEnabled())
 		logger.debug("Checking Email....");
+
+		int numOfDays=1;
+		try
+		{
+		 numOfDays = NumberUtils.createInteger(ConfigReader.getInstance().getProperty(ConfigReader.NUM_OF_DAYS, "1"));
+		}
+		catch (NumberFormatException nfe)
+		{
+			logger.error("Error converting the property " + ConfigReader.NUM_OF_DAYS + " to String. Will use default value of 1");
+		}
 		
-		System.out.println(new Date());
+		logger.debug("No of days ... " + numOfDays);
+		
+	
+	
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR, 0);
 		calendar.set(Calendar.MINUTE, 0);
@@ -86,6 +100,14 @@ public class MailUtil {
 		calendar.set(Calendar.SECOND, 0);
 		calendar.set(Calendar.AM_PM, 0);
 //		System.out.println(calendar.getTime());
+		
+		
+
+		calendar.add(Calendar.DATE, (-1*numOfDays));
+		
+		
+		logger.debug("Going to check until..." + calendar.getTime());
+				
 		
 		
 		List <TransactionInfo> transactionInfos = new ArrayList<TransactionInfo>();
@@ -97,6 +119,7 @@ public class MailUtil {
 			String pwd  = ConfigReader.getInstance().getProperty(ConfigReader.EMAIL_PASSWORD);
 			store.connect("smtp.gmail.com", userId , pwd );
 
+			
 			FetchProfile fp = new FetchProfile();
 			fp.add(FetchProfile.Item.CONTENT_INFO);
 
@@ -137,7 +160,9 @@ public class MailUtil {
 							logger.debug(transactionInfo.toString());
 						}
 						
-						if (transactionInfo.getTxnDate().equals(calendar.getTime()))
+						
+						
+						if (transactionInfo.getTxnDate().after(calendar.getTime()) || transactionInfo.getTxnDate().equals(calendar.getTime()  ))
 						{
 							transactionInfos.add(transactionInfo);
 						}
