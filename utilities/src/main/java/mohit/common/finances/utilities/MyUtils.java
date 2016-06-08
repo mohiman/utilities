@@ -3,6 +3,7 @@ package mohit.common.finances.utilities;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +72,7 @@ public class MyUtils {
 		return 0f;
 	}
 
-	public static TransactionInfo parseEmailContent(Multipart content, AccountInfo accountInfo) 
+	public static List<TransactionInfo> parseEmailContent(Multipart content, AccountInfo accountInfo) 
 	{
 
 		try {
@@ -98,31 +99,54 @@ public class MyUtils {
 		return null;
 	}
 	
-	public static TransactionInfo parseEmail(String data, AccountInfo accountInfo)
+	public static List<TransactionInfo> parseEmail(String data,AccountInfo accountInfo)
 	{
-		TransactionInfo info = new TransactionInfo(accountInfo.getAccountName());
-
-		 data = data.toLowerCase();
+		List<TransactionInfo> infos = new ArrayList<TransactionInfo>();
+		data = data.toLowerCase();
 		
-		String date = getMatchedRegEx(accountInfo.getDateRegex(),data);
-		String amount = getMatchedRegEx(accountInfo.getAmtRegex(),data);
-		String merchantName = getMatchedRegEx(accountInfo.getMrchntRegx(),data);
-
-		
-		
-		info.setTxnDate(MyUtils.getDateFromString(date));
-		info.setAmountDebited(MyUtils.getNumberFromString(amount));
-		info.setDescription(merchantName);
-		if (StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) && 
-				StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) )
+		while(true)
 		{
-			info.setMerchantDisplayName(merchantName.replaceAll(accountInfo.getMrchntRegxStart(), "").trim().replaceAll(accountInfo.getMrchntRegxEnd(), "").trim() );
-		}		
-		
-		System.out.println(info.toString());
-		
-		return info;
+				TransactionInfo info = new TransactionInfo(accountInfo.getAccountName());
+				String date = getMatchedRegEx(accountInfo.getDateRegex(),data);
+				String amount = getMatchedRegEx(accountInfo.getAmtRegex(),data);
+				String merchantName = getMatchedRegEx(accountInfo.getMrchntRegx(),data);
+				
+				if (StringUtils.isNotBlank(date) && StringUtils.isNotBlank(amount) & StringUtils.isNotBlank(merchantName))
+				{
+					data = data.substring(data.indexOf(date)+date.length());
+					
+					info.setTxnDate(MyUtils.getDateFromString(date));
+					info.setAmountDebited(MyUtils.getNumberFromString(amount));
+					info.setDescription(merchantName);
+					if (StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) && 
+							StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) )
+					{
+						info.setMerchantDisplayName(merchantName.replaceAll(accountInfo.getMrchntRegxStart(), "").trim().replaceAll(accountInfo.getMrchntRegxEnd(), "").trim() );
+					}
+					System.out.println(info.toString() + " Place " + data.indexOf(date));
+					infos.add(info) ;
+				}
+				else
+				{
+					break;
+				}
+		}
+		return infos;
 	}
+//	public static TransactionInfo parseEmail(String data, AccountInfo accountInfo)
+//	{
+//		
+//		TransactionInfo info = getTxnInfoFromData(data, accountInfo);
+//		
+//		System.out.println(info.toString());
+//		
+//		
+//		
+//		
+//		return info;
+//	}
+	
+	
 	
 	
 	private static String getMatchedRegEx(String regEx, String data) 

@@ -83,6 +83,7 @@ public class MailUtil {
 		try
 		{
 		 numOfDays = NumberUtils.createInteger(ConfigReader.getInstance().getProperty(ConfigReader.NUM_OF_DAYS, "1"));
+		 if (numOfDays > 0) numOfDays = numOfDays-1;
 		}
 		catch (NumberFormatException nfe)
 		{
@@ -110,6 +111,7 @@ public class MailUtil {
 				
 		
 		
+		List <TransactionInfo> transactionInfosRtn = new ArrayList<TransactionInfo>();
 		List <TransactionInfo> transactionInfos = new ArrayList<TransactionInfo>();
 		try {
 			Session session = Session.getDefaultInstance(props, null);
@@ -146,30 +148,37 @@ public class MailUtil {
 						TransactionInfo transactionInfo = null;
 						if (messages[i].getContentType().contains("TEXT"))
 						{
-//							System.out.println((String) messages[i].getContent());
-							transactionInfo = MyUtils.parseEmail( (String) messages[i].getContent(),accountInfo);
+							transactionInfos = MyUtils.parseEmail( (String) messages[i].getContent(),accountInfo);
+							
 						}
 						else
 						{
 						
-							transactionInfo = MyUtils.parseEmailContent( (Multipart) messages[i].getContent(),accountInfo);	
-						}
-						
-						if (logger.isDebugEnabled())
-						{
-							logger.debug(transactionInfo.toString());
+							transactionInfos = MyUtils.parseEmailContent( (Multipart) messages[i].getContent(),accountInfo);	
 						}
 						
 						
 						
-						if (transactionInfo.getTxnDate().after(calendar.getTime()) || transactionInfo.getTxnDate().equals(calendar.getTime()  ))
+						System.out.println(" messages[i].getReceivedDate() = " +  messages[i].getReceivedDate());
+						System.out.println(" messages[i].getReceivedDate() = " +  calendar.getTime());
+						
+						if (transactionInfos!=null && transactionInfos.size()>0 && ( messages[i].getReceivedDate().after(calendar.getTime()) || messages[i].getReceivedDate().equals(calendar.getTime()))) 
 						{
-							transactionInfos.add(transactionInfo);
+//							transactionInfo = transactionInfos.get(0);
+//							if (transactionInfo != null && (transactionInfo.getTxnDate().after(calendar.getTime()) || transactionInfo.getTxnDate().equals(calendar.getTime()  )))
+//							{
+								transactionInfosRtn.addAll(transactionInfos);
+//							}
+//							else
+//							{
+//								break; //break the loop
+//							}
 						}
 						else
 						{
-							break; //break the loop
+							break;
 						}
+						
 					}
 				}
 
@@ -184,7 +193,7 @@ public class MailUtil {
 			e.printStackTrace();
 		}
 		System.out.println("Returning... " + transactionInfos.size());
-		return transactionInfos;
+		return transactionInfosRtn;
 	}
 
 	private static AccountInfo findAMatch(Address[] from, List<AccountInfo> accountInfos) {
