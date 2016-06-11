@@ -54,7 +54,7 @@ public class MyUtils {
 		try {
 			if (StringUtils.isNotBlank(passedInString)) 
 			{
-				
+				passedInString=passedInString.replaceAll(",", "");
 				if (passedInString.startsWith("$")) 
 				{
 					return NumberUtils.createFloat(passedInString.substring(1,passedInString.length() ));
@@ -102,64 +102,97 @@ public class MyUtils {
 	public static List<TransactionInfo> parseEmail(String data,AccountInfo accountInfo)
 	{
 		List<TransactionInfo> infos = new ArrayList<TransactionInfo>();
-		data = data.toLowerCase();
+//System.out.println(data);
 		
+		String date = "";
+		String amount = "";
+		String merchantName = "";
 		while(true)
 		{
-				TransactionInfo info = new TransactionInfo(accountInfo.getAccountName());
-				String date = getMatchedRegEx(accountInfo.getDateRegex(),data);
-				String amount = getMatchedRegEx(accountInfo.getAmtRegex(),data);
-				String merchantName = getMatchedRegEx(accountInfo.getMrchntRegx(),data);
+			TransactionInfo info = new TransactionInfo(accountInfo.getAccountName());
+			merchantName = getMatchedRegEx( accountInfo.getMrchntRegx(), data).replaceAll("\\<.*?>","").replaceAll("\\t", "").replaceAll("\\n", "");
+			
+			
+
+			date = getMatchedRegEx( accountInfo.getDateRegex(), data);
+			amount = getMatchedRegEx( accountInfo.getAmtRegex(), data);
+			if (StringUtils.isNotBlank(date) && StringUtils.isNotBlank(amount)&& StringUtils.isNotBlank(merchantName))
+			{
+				System.out.println(merchantName);
+				System.out.println(date);
+				System.out.println(amount);
 				
-				if (StringUtils.isNotBlank(date) && StringUtils.isNotBlank(amount) & StringUtils.isNotBlank(merchantName))
+				data = data.substring(data.indexOf(date)+date.length());
+				
+				info.setTxnDate(MyUtils.getDateFromString(date));
+				
+				info.setAmountDebited(MyUtils.getNumberFromString(amount));
+				
+				info.setDescription(merchantName);
+				
+				if (StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) && 
+						StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) )
 				{
-					data = data.substring(data.indexOf(date)+date.length());
-					
-					info.setTxnDate(MyUtils.getDateFromString(date));
-					info.setAmountDebited(MyUtils.getNumberFromString(amount));
-					info.setDescription(merchantName);
-					if (StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) && 
-							StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) )
-					{
-						info.setMerchantDisplayName(merchantName.replaceAll(accountInfo.getMrchntRegxStart(), "").trim().replaceAll(accountInfo.getMrchntRegxEnd(), "").trim() );
-					}
-					System.out.println(info.toString() + " Place " + data.indexOf(date));
-					infos.add(info) ;
+					info.setMerchantDisplayName(merchantName.replaceAll(accountInfo.getMrchntRegxStart(), "").trim().replaceAll(accountInfo.getMrchntRegxEnd(), "").trim() );
 				}
-				else
-				{
-					break;
-				}
-		}
+				
+				infos.add(info) ;
+				
+			}
+			else
+			{
+				break;
+			}
+		}		
+//		
+//		while(true)
+//		{
+//				TransactionInfo info = new TransactionInfo(accountInfo.getAccountName());
+//				
+//				String date = getMatchedRegEx(accountInfo.getDateRegex(),data );
+//				String amount = getMatchedRegEx(accountInfo.getAmtRegex(),data);
+//				String merchantName = getMatchedRegEx(accountInfo.getMrchntRegx(),data );
+//				
+//				logger.debug("date = " + date + ", amount = " + amount + ", merchantName =" + merchantName );
+//				
+//				if (StringUtils.isNotBlank(date) && StringUtils.isNotBlank(amount) )
+//				{
+//					if (StringUtils.isNotBlank(merchantName))
+//						data = data.substring(data.indexOf(merchantName)+merchantName.length());
+//					else
+//						data = data.substring(data.indexOf(date)+date.length());
+//					
+//					
+//					info.setTxnDate(MyUtils.getDateFromString(date));
+//					info.setAmountDebited(MyUtils.getNumberFromString(amount));
+//					info.setDescription(merchantName);
+//					if (StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) && 
+//							StringUtils.isNotBlank(accountInfo.getMrchntRegxStart()) )
+//					{
+//						info.setMerchantDisplayName(merchantName.replaceAll(accountInfo.getMrchntRegxStart(), "").trim().replaceAll(accountInfo.getMrchntRegxEnd(), "").trim() );
+//					}
+////					System.out.println(info.toString() + " Place " + data.indexOf(date));
+//					infos.add(info) ;
+//				}
+//				else
+//				{
+//					break;
+//				}
+//		}
 		return infos;
 	}
-//	public static TransactionInfo parseEmail(String data, AccountInfo accountInfo)
-//	{
-//		
-//		TransactionInfo info = getTxnInfoFromData(data, accountInfo);
-//		
-//		System.out.println(info.toString());
-//		
-//		
-//		
-//		
-//		return info;
-//	}
-	
-	
-	
-	
 	private static String getMatchedRegEx(String regEx, String data) 
 	{
-		Pattern p = Pattern.compile(regEx.toLowerCase());
-		Matcher m1 = p.matcher(data.toLowerCase()) ;
-	    if (m1.find())
+		Pattern p = Pattern.compile(regEx);
+		Matcher m1 = p.matcher(data ) ;
+		m1.groupCount();
+		
+	    while(m1.find())
 	    {
 	    	return data.substring(m1.start(), m1.end());
 	    }
 	    return "";
 	}
-
 	public static String printTotals(List<TransactionInfo> transactionInfos, String whichField) {
 
 		String whiteSpace = " ";

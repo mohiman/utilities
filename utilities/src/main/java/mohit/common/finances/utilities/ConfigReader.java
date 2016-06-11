@@ -66,8 +66,8 @@ public class ConfigReader
 
 	private void loadProperties() throws Exception
     {
-//		InputStream inputStream = new FileInputStream("C:\\Users\\mohiman\\Desktop\\Utilities\\config.properties");
-		InputStream inputStream = new FileInputStream("config.properties");
+		InputStream inputStream = new FileInputStream("C:\\Users\\mohiman\\Desktop\\Utilities\\config.properties");
+//		InputStream inputStream = new FileInputStream("config.properties");
 		
 		props.load(inputStream);
 		

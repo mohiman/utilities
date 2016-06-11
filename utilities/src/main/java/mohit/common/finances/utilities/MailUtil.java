@@ -82,8 +82,8 @@ public class MailUtil {
 		int numOfDays=1;
 		try
 		{
-		 numOfDays = NumberUtils.createInteger(ConfigReader.getInstance().getProperty(ConfigReader.NUM_OF_DAYS, "1"));
-		 if (numOfDays > 0) numOfDays = numOfDays-1;
+			numOfDays = NumberUtils.createInteger(ConfigReader.getInstance().getProperty(ConfigReader.NUM_OF_DAYS, "1"));
+			if (numOfDays > 0) numOfDays = numOfDays-1;
 		}
 		catch (NumberFormatException nfe)
 		{
@@ -149,7 +149,6 @@ public class MailUtil {
 						if (messages[i].getContentType().contains("TEXT"))
 						{
 							transactionInfos = MyUtils.parseEmail( (String) messages[i].getContent(),accountInfo);
-							
 						}
 						else
 						{
@@ -164,15 +163,7 @@ public class MailUtil {
 						
 						if (transactionInfos!=null && transactionInfos.size()>0 && ( messages[i].getReceivedDate().after(calendar.getTime()) || messages[i].getReceivedDate().equals(calendar.getTime()))) 
 						{
-//							transactionInfo = transactionInfos.get(0);
-//							if (transactionInfo != null && (transactionInfo.getTxnDate().after(calendar.getTime()) || transactionInfo.getTxnDate().equals(calendar.getTime()  )))
-//							{
-								transactionInfosRtn.addAll(transactionInfos);
-//							}
-//							else
-//							{
-//								break; //break the loop
-//							}
+							transactionInfosRtn.addAll(transactionInfos);
 						}
 						else
 						{

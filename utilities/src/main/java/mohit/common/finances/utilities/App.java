@@ -30,7 +30,7 @@ public class App
 	    		String message = MyUtils.printTotals(transactionInfos, null);
     			logger.info("Sending this message as SMS " );
     			logger.info(" " + message );
-	    		MailUtil.sendEmail(message);
+//	    		MailUtil.sendEmail(message);
     		}
     	}
     	catch (Exception e)
