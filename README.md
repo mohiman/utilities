@@ -36,7 +36,6 @@ num.of.days.email.check=2
 #if you don't specify this, it defaults to 1 
 total.accounts=1
 
-#As requested, we are notifying you that on MAY 22, 2016 at CVS/PHARMACY # a pending authorization or purchase in the amount of $6.98 was placed or charged on your Capital One® VISA SIGNATURE account.
 account.2.name=Visa
 account.2.email.from=visaCard@bankofAmerica.com
 account.2.date.regex=[a-zA-Z]{3}\\s[0-9]{1,2}, [0-9]{4} )
